@@ -19,15 +19,19 @@ class ImageGeneratorNanobananaGoogleAPI:
     def __init__(
         self,
         api_key: str,
+        model: str = "gemini-2.5-flash-image",
         rate_limiter: Optional[RateLimiter] = None,
     ):
-        self.model = "gemini-2.5-flash-image"
+        self.model = model
         self.rate_limiter = rate_limiter
         self.client = genai.Client(
             api_key=api_key,
         )
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10), after=after_func, reraise=True)
+    async def aclose(self) -> None:
+        """Close the async HTTP session; call before the event loop ends to avoid 'Unclosed client session'."""
+        await self.client.aio.aclose()
+
     async def generate_single_image(
         self,
         prompt: str,
@@ -35,9 +39,21 @@ class ImageGeneratorNanobananaGoogleAPI:
         aspect_ratio: Optional[str] = "16:9",
         **kwargs,
     ) -> ImageOutput:
+        output, _ = await self.generate_image_with_response(prompt, reference_image_paths, aspect_ratio, **kwargs)
+        return output
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=10), after=after_func, reraise=True)
+    async def generate_image_with_response(
+        self,
+        prompt: str,
+        reference_image_paths: List[str] = [],
+        aspect_ratio: Optional[str] = "16:9",
+        **kwargs,
+    ) -> tuple[ImageOutput, dict]:
 
         """
             aspect_ratio: The aspect ratio of the image.
+            Returns the image and response metadata (id, model version, token usage) for bookkeeping.
         """
 
         logging.info(f"Calling {self.model} to generate image...")
@@ -66,7 +82,7 @@ class ImageGeneratorNanobananaGoogleAPI:
                 )
                 break
             except ClientError as e:
-                if e.status_code == 429 and attempt < max_retries - 1:
+                if e.code == 429 and attempt < max_retries - 1:
                     wait_time = retry_delay * (2 ** attempt)
                     logging.warning(f"Rate limit hit (429), retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
                     await asyncio.sleep(wait_time)
@@ -75,7 +91,11 @@ class ImageGeneratorNanobananaGoogleAPI:
 
         image = None
         text = ""
-        for part in response.candidates[0].content.parts:
+        candidate = response.candidates[0] if response.candidates else None
+        if candidate is None or candidate.content is None or not candidate.content.parts:
+            reason = candidate.finish_reason if candidate is not None else response.prompt_feedback
+            raise ValueError(f"No image generated, finish reason: {reason}")
+        for part in candidate.content.parts:
             if part.text is not None:
                 text += part.text
             elif part.inline_data is not None:
@@ -93,5 +113,7 @@ class ImageGeneratorNanobananaGoogleAPI:
         ):
             ensure_not_portrait(image)
 
-        return ImageOutput(fmt="pil", ext="png", data=image)
+        usage = response.usage_metadata.model_dump(mode="json", exclude_none=True) if response.usage_metadata else {}
+        meta = {"id": response.response_id, "model_version": response.model_version, "usage_metadata": usage}
+        return ImageOutput(fmt="pil", ext="png", data=image), meta
 

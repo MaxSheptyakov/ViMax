@@ -1,16 +1,25 @@
-# ViMax agent runtime local configuration template.
-# Keep real keys out of commits. Prefer environment variables for shared or CI usage.
+# ViMax agent runtime local configuration template. Copy to configs/agent.local.yaml.
+# Keep real keys out of commits. Prefer environment variables for shared or CI usage
+# (VIMAX_<BLOCK>_PROVIDER / _MODEL / _BASE_URL / _API_KEY override the file).
+#
+# Every generation block names its provider and has its own model and api_key.
+#   provider: google | openrouter | yunwu
+#   base_url: optional; the provider default is used when omitted
+#     google:     https://generativelanguage.googleapis.com/v1beta (llm: .../v1beta/openai/)
+#     openrouter: https://openrouter.ai/api/v1
+#     yunwu:      https://yunwu.ai/v1 (image: https://yunwu.ai)
+# Model names are the provider's own: google ones have no prefix (gemini-omni-1.2-flash),
+# openrouter ones do (google/gemini-omni-1.2-flash).
 
 llm:
-  model_provider: openai
-  model: <YOUR_LLM_MODEL>
-  base_url: <YOUR_LLM_BASE_URL>
-  api_key: ''
+  provider: google
+  model: gemini-3.5-flash-lite
+  api_key: <YOUR_API_KEY>
 
 image:
-  model: <YOUR_IMAGE_MODEL>
-  base_url: <YOUR_IMAGE_BASE_URL>
-  api_key: ''
+  provider: google
+  model: gemini-nano-banana-2.1
+  api_key: <YOUR_API_KEY>
 
 # Keyframes: generate candidates concurrently and compare with the configured LLM.
 # Set to 1 to generate one image without VLM selection. The LLM must support vision.
@@ -18,9 +27,22 @@ image_selection:
   num_candidates: 2
 
 video:
-  model: <YOUR_VIDEO_MODEL>
-  base_url: <YOUR_VIDEO_BASE_URL>
-  api_key: ''
+  provider: google
+  model: gemini-omni-1.2-flash
+  api_key: <YOUR_API_KEY>
+
+# Narration for the series-video skill (studio.py voice stage).
+voice:
+  provider: google
+  model: gemini-3.8-flash-tts
+  api_key: <YOUR_API_KEY>
+
+# Background music for the series-video skill (studio.py music stage).
+# google: lyria-3.5 (or lyria-3-pro-preview); openrouter: google/lyria-3-pro-preview.
+music:
+  provider: google
+  model: lyria-3.5
+  api_key: <YOUR_API_KEY>
 
 # Optional. Fill these only when using novel2video planning.
 embedding:

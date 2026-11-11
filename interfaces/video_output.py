@@ -15,9 +15,12 @@ class VideoOutput:
         fmt: Literal["url", "bytes"],
         ext: str,
         data: Union[str, bytes],
+        metadata: Optional[dict] = None,
     ):
         self.fmt = fmt
         self.ext = ext
+        # Provider details for bookkeeping (job id, final status payload with usage/cost), when known.
+        self.metadata = metadata or {}
         self.data = data
 
     def save_url(self, path: str) -> None:

@@ -235,22 +235,21 @@ ViMax also provides a minimal TUI for interactive agent-based video creation. Cr
 cp configs/agent.example.yaml configs/agent.local.yaml
 ```
 
-Then configure the model and API key information in `configs/agent.local.yaml`, including the LLM, image generator, and video generator, as shown below.
+Then configure `configs/agent.local.yaml`. Every block names its `provider` (`google`, `openrouter` or `yunwu`) and has its own `model` and `api_key`; `base_url` is optional and defaults per provider. Model names are the provider's own (`gemini-omni-1.2-flash` on Google, `google/gemini-omni-1.2-flash` on OpenRouter).
 ```yaml
 llm:
-  model_provider: openai
-  model: <YOUR_LLM_MODEL>
-  base_url: <YOUR_LLM_BASE_URL>
+  provider: google
+  model: gemini-3.5-flash-lite
   api_key: <YOUR_API_KEY>
 
 image:
-  model: <YOUR_IMAGE_MODEL>
-  base_url: <YOUR_IMAGE_BASE_URL>
+  provider: google
+  model: gemini-nano-banana-2.1
   api_key: <YOUR_API_KEY>
 
 video:
-  model: <YOUR_VIDEO_MODEL>
-  base_url: <YOUR_VIDEO_BASE_URL>
+  provider: google
+  model: gemini-omni-1.2-flash
   api_key: <YOUR_API_KEY>
 ```
 
@@ -266,7 +265,7 @@ vimax tui resume
 vimax tui resume <session_id>
 ```
 
-You can also keep `configs/agent.local.yaml` empty and provide the same values through environment variables, such as `VIMAX_LLM_API_KEY`, `VIMAX_IMAGE_API_KEY`, and `VIMAX_VIDEO_API_KEY`.
+You can also keep `configs/agent.local.yaml` empty and provide the same values through environment variables named `VIMAX_<BLOCK>_PROVIDER`, `_MODEL`, `_BASE_URL` and `_API_KEY`, such as `VIMAX_VIDEO_PROVIDER` and `VIMAX_VIDEO_API_KEY`.
 
 </details>
 

@@ -146,7 +146,7 @@ class TestBoundedRetryPolicies(unittest.TestCase):
         ("ScriptPlanner.plan_script", ScriptPlanner.plan_script),
         ("RerankerBgeSiliconapi.__call__", RerankerBgeSiliconapi.__call__),
         ("ImageGeneratorDoubaoSeedreamYunwuAPI.generate_single_image", ImageGeneratorDoubaoSeedreamYunwuAPI.generate_single_image),
-        ("ImageGeneratorNanobananaGoogleAPI.generate_single_image", ImageGeneratorNanobananaGoogleAPI.generate_single_image),
+        ("ImageGeneratorNanobananaGoogleAPI.generate_image_with_response", ImageGeneratorNanobananaGoogleAPI.generate_image_with_response),
         ("ImageGeneratorNanobananaYunwuAPI.generate_single_image", ImageGeneratorNanobananaYunwuAPI.generate_single_image),
     ]
 

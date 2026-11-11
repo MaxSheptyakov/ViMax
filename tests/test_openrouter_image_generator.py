@@ -75,9 +75,10 @@ class OpenRouterImageGeneratorTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(_is_retryable_image_error(OpenRouterImageAPIError(401, {})))
         self.assertFalse(_is_retryable_image_error(ValueError("invalid reference image")))
 
-    def test_agent_factory_selects_openrouter_from_image_base_url(self):
+    def test_agent_factory_selects_openrouter_from_image_provider(self):
         with patch("agent_runtime.vimax_adapters.image_api_key", return_value="secret"), \
              patch("agent_runtime.vimax_adapters.image_model", return_value="openai/gpt-image-2"), \
+             patch("agent_runtime.vimax_adapters.image_provider", return_value="openrouter"), \
              patch("agent_runtime.vimax_adapters.image_base_url", return_value="https://openrouter.ai/api/v1"):
             generator = _build_image_generator()
         self.assertIsInstance(generator, ImageGeneratorOpenRouterAPI)

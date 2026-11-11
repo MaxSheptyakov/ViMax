@@ -132,7 +132,7 @@ class VideoGeneratorOpenRouterAPI:
                 if download_status >= 400:
                     raise RuntimeError(f"OpenRouter video content download failed with HTTP {download_status}: {data[:500]!r}")
                 _emit_progress(progress, "video_completed", "OpenRouter video generation completed and downloaded", {"model": self.model, "job_id": job_id})
-                return VideoOutput(fmt="bytes", ext="mp4", data=data)
+                return VideoOutput(fmt="bytes", ext="mp4", data=data, metadata={"id": job_id, **poll_payload})
             if status in {"failed", "cancelled", "expired"}:
                 raise RuntimeError(f"OpenRouter video generation {status} for job {job_id}: {poll_payload.get('error') or poll_payload}")
 
