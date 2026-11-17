@@ -37,6 +37,22 @@ voice:
   model: gemini-3.8-flash-tts
   api_key: <YOUR_API_KEY>
 
+# Character voices for the voice stage. A scene line names its speaker in vo.speaker (no speaker = narrator).
+# A listed character speaks with its voice: a cloned Gemini voice (voice_...) or a prebuilt name (Enceladus, ...).
+# A character missing here uses the series default voice from series.json (voice.voice).
+characters:
+  narrator:
+    voice: voice_<YOUR_CLONED_VOICE_ID>
+  dad:
+    voice: Enceladus
+
+# Transition mode (studio_transition.py): cartoon frame -> real video. OpenRouter video model with first + last frame.
+# bytedance/seedance-2.5 held the scene and landed exactly on the real frame; alibaba/wan-3.0-prime is cheaper but drifts.
+transition:
+  provider: openrouter
+  model: bytedance/seedance-2.5
+  api_key: <YOUR_OPENROUTER_KEY>
+
 # Background music for the series-video skill (studio.py music stage).
 # google: lyria-3.5 (or lyria-3-pro-preview); openrouter: google/lyria-3-pro-preview.
 music:
